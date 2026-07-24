@@ -1,0 +1,116 @@
+@model SmartInventoryPOSSystem.ViewModels.POSViewModel
+@{
+    ViewData["Title"] = "Point of Sale";
+}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <h1>Point of Sale</h1>
+        <p class="text-muted mb-3">Search products, add them to the cart, and complete sales with customer and payment details.</p>
+
+        <div class="page-intro">
+            <h2>Sales workflow</h2>
+            <p>Use this page to process transactions quickly. Add products to the cart, select a customer if needed, apply discounts, and complete checkout for accurate sales records.</p>
+            <ul>
+                <li>Search by product name or SKU, then add items directly to the cart.</li>
+                <li>Select the customer to attach sales history or leave blank for walk-in buyers.</li>
+                <li>Enter discounts and paid amount carefully before completing the sale.</li>
+            </ul>
+        </div>
+
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-10">
+                <input type="text" name="search" value="@Model.SearchTerm" class="form-control" placeholder="Search product by name or SKU" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+
+        <div class="row g-3">
+            @foreach (var product in Model.Products)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text">SKU: @product.SKU</p>
+                            <p class="card-text">Price: @product.Price.ToString("C")</p>
+                            <p class="card-text">Stock: @product.StockQuantity</p>
+                            <form asp-action="AddToCart" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@product.Id" />
+                                <button type="submit" class="btn btn-success">Add to Cart</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-body">
+                <h2>Cart</h2>
+                @if (Model.CartItems.Any())
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.CartItems)
+                            {
+                                <tr>
+                                    <td>@item.ProductName</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@(item.UnitPrice * item.Quantity)</td>
+                                    <td>
+                                        <form asp-action="RemoveFromCart" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="productId" value="@item.ProductId" />
+                                            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <form asp-action="Checkout" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label">Customer</label>
+                            <select name="customerId" class="form-select">
+                                <option value="">Walk-in customer</option>
+                                @foreach (var customer in Model.Customers)
+                                {
+                                    <option value="@customer.Id">@customer.FullName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Discount</label>
+                            <input type="number" name="discount" class="form-control" value="0" min="0" step="0.01" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Paid Amount</label>
+                            <input type="number" name="paidAmount" class="form-control" value="0" min="0" step="0.01" />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Complete Sale</button>
+                    </form>
+                }
+                else
+                {
+                    <p class="text-muted">Cart is empty.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

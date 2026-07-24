@@ -1,0 +1,60 @@
+@model SmartInventoryPOSSystem.ViewModels.ProductFormViewModel
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<h1>Edit Product</h1>
+
+<form asp-action="Edit" method="post">
+    <input asp-for="Id" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="SKU" class="form-label"></label>
+            <input asp-for="SKU" class="form-control" />
+            <span asp-validation-for="SKU" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Barcode" class="form-label"></label>
+            <input asp-for="Barcode" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="ImageUrl" class="form-label"></label>
+            <input asp-for="ImageUrl" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Price" class="form-label"></label>
+            <input asp-for="Price" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="CostPrice" class="form-label"></label>
+            <input asp-for="CostPrice" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="StockQuantity" class="form-label"></label>
+            <input asp-for="StockQuantity" class="form-control" />
+        </div>
+        <div class="col-md-12">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="CategoryId" class="form-label"></label>
+            <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select"></select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="SupplierId" class="form-label"></label>
+            <select asp-for="SupplierId" asp-items="Model.Suppliers" class="form-select"></select>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
