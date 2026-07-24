@@ -1,0 +1,19 @@
+@model SmartInventoryPOSSystem.Models.ErrorViewModel
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card panel-card">
+            <div class="card-body text-center py-5">
+                <div class="mb-3">
+                    <span class="status-pill">Security Notice</span>
+                </div>
+                <h1 class="display-6 fw-bold">Access Denied</h1>
+                <p class="text-muted mb-4">You do not have permission to open this module. Please sign in with an authorized Admin or Cashier account.</p>
+                <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Return to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>

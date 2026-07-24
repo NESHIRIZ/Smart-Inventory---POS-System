@@ -1,0 +1,188 @@
+﻿@model SmartInventoryPOSSystem.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Executive Dashboard";
+}
+
+<div class="dashboard-header mb-4">
+    <div>
+        <span class="eyebrow">Enterprise Intelligence</span>
+        <h1 class="hero-title">Premium Inventory & Sales Overview</h1>
+        <p class="hero-copy">An enterprise-ready command center showing performance, stock health, and sales momentum in real time.</p>
+    </div>
+    <div class="dashboard-actions d-flex flex-wrap gap-2">
+        <a asp-controller="Products" asp-action="Create" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-2"></i>Add Product</a>
+        <a asp-controller="POS" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-shopping-cart me-2"></i>Open POS</a>
+        <a asp-controller="Customers" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-users me-2"></i>Customer List</a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4 col-xl-3">
+        <div class="metric-card primary-card">
+            <div class="metric-icon"><i class="fas fa-box"></i></div>
+            <div class="metric-label">Total Products</div>
+            <div class="metric-value">@Model.TotalProducts</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-3">
+        <div class="metric-card success-card">
+            <div class="metric-icon"><i class="fas fa-shopping-basket"></i></div>
+            <div class="metric-label">Total Sales</div>
+            <div class="metric-value">@Model.TotalSales</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-3">
+        <div class="metric-card warning-card">
+            <div class="metric-icon"><i class="fas fa-dollar-sign"></i></div>
+            <div class="metric-label">Today Revenue</div>
+            <div class="metric-value">@Model.TodayRevenue.ToString("C")</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-3">
+        <div class="metric-card info-card">
+            <div class="metric-icon"><i class="fas fa-chart-area"></i></div>
+            <div class="metric-label">Annual Revenue</div>
+            <div class="metric-value">@Model.AnnualRevenue.ToString("C")</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-8">
+        <div class="card panel-card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="panel-title">Monthly Revenue Trend</h2>
+                    <p class="text-muted mb-0">Track performance across the year.</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="monthlySalesChart" height="240"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card panel-card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="panel-title">Highlights</h2>
+                    <p class="text-muted mb-0">Key enterprise metrics.</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="metric-card summary-card mb-3">
+                    <div class="metric-label">Best Selling Product</div>
+                    <div class="metric-value">@Model.BestSellingProduct</div>
+                </div>
+                <div class="metric-card summary-card mb-3">
+                    <div class="metric-label">Most Active Customer</div>
+                    <div class="metric-value">@Model.MostActiveCustomer</div>
+                </div>
+                <div class="metric-card summary-card">
+                    <div class="metric-label">Inventory Value</div>
+                    <div class="metric-value">@Model.InventoryValue.ToString("C")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-4">
+        <div class="card panel-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="panel-title">Sales by Category</h3>
+                <span class="badge bg-secondary">Overview</span>
+            </div>
+            <div class="card-body">
+                <canvas id="categorySalesChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card panel-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="panel-title">Inventory Distribution</h3>
+                <span class="badge bg-secondary">Stock mix</span>
+            </div>
+            <div class="card-body">
+                <canvas id="inventoryChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card panel-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="panel-title">Recent Sales</h3>
+                <span class="badge bg-secondary">Latest</span>
+            </div>
+            <div class="card-body">
+                <div class="list-stack">
+                    @foreach (var sale in Model.RecentSales)
+                    {
+                        <div class="list-row">
+                            <div>
+                                <strong>@sale.ProductName</strong>
+                                <small>@sale.CustomerName • @sale.SaleDate.ToLocalTime().ToString("g")</small>
+                            </div>
+                            <span class="pill-muted">@sale.TotalAmount.ToString("C")</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const monthlySalesData = {
+            labels: [@string.Join(",", Model.MonthlySalesTrend.Select(m => $"'{m.Label}'"))],
+            datasets: [{
+                label: 'Revenue',
+                data: [@string.Join(",", Model.MonthlySalesTrend.Select(m => m.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)))],
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.16)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4
+            }]
+        };
+
+        const categorySalesData = {
+            labels: [@string.Join(",", Model.SalesByCategory.Select(c => $"'{c.Label}'"))],
+            datasets: [{
+                label: 'Category Sales',
+                data: [@string.Join(",", Model.SalesByCategory.Select(c => c.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)))],
+                backgroundColor: ['#2563eb', '#22c55e', '#f59e0b', '#8b5cf6', '#0ea5e9']
+            }]
+        };
+
+        const inventoryData = {
+            labels: [@string.Join(",", Model.InventoryDistribution.Select(c => $"'{c.Label}'"))],
+            datasets: [{
+                label: 'Stock Quantity',
+                data: [@string.Join(",", Model.InventoryDistribution.Select(c => c.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)))],
+                backgroundColor: ['#0891b2', '#0f766e', '#7c3aed', '#db2777', '#f97316']
+            }]
+        };
+
+        new Chart(document.getElementById('monthlySalesChart'), {
+            type: 'line',
+            data: monthlySalesData,
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.12)' } }, x: { grid: { color: 'transparent' } } } }
+        });
+
+        new Chart(document.getElementById('categorySalesChart'), {
+            type: 'doughnut',
+            data: categorySalesData,
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        new Chart(document.getElementById('inventoryChart'), {
+            type: 'pie',
+            data: inventoryData,
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    </script>
+}

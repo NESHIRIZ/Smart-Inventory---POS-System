@@ -1,0 +1,136 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Smart Inventory & POS System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">S</div>
+                <div class="brand-text">
+                    <div class="brand-title">Smart Inventory</div>
+                    <small>Enterprise POS Suite</small>
+                </div>
+            </div>
+
+            <div class="sidebar-scroll">
+                <div class="sidebar-section">
+                    <div class="section-label">Dashboard</div>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fas fa-chart-line"></i> Dashboard</a>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            var isAdmin = User.IsInRole("Admin");
+                            var isCashier = User.IsInRole("Cashier");
+
+                            if (isAdmin || isCashier)
+                            {
+                                <a class="nav-link" asp-controller="Products" asp-action="Index"><i class="fas fa-boxes-stacked"></i> Products</a>
+                                <a class="nav-link" asp-controller="Customers" asp-action="Index"><i class="fas fa-user-group"></i> Customers</a>
+                                <a class="nav-link" asp-controller="POS" asp-action="Index"><i class="fas fa-cash-register"></i> Point of Sale</a>
+                            }
+
+                            if (isAdmin)
+                            {
+                                <a class="nav-link" asp-controller="Categories" asp-action="Index"><i class="fas fa-tags"></i> Categories</a>
+                                <a class="nav-link" asp-controller="Suppliers" asp-action="Index"><i class="fas fa-truck"></i> Suppliers</a>
+                            }
+                        }
+                    </nav>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-footer-item">
+                    <i class="fas fa-circle-notch"></i>
+                    <span>Premium UI</span>
+                </div>
+                <div class="sidebar-footer-item">
+                    <i class="fas fa-lock"></i>
+                    <span>Secure access</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-panel">
+            <header class="topbar">
+                <div class="topbar-left d-flex align-items-center gap-3">
+                    <button type="button" class="icon-btn menu-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                    <div class="topbar-search">
+                        <form asp-controller="Products" asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+                            <i class="fas fa-search"></i>
+                            <input name="search" class="form-control" placeholder="Search products, customers, suppliers" aria-label="Search" />
+                        </form>
+                    </div>
+                </div>
+
+                <div class="topbar-right d-flex align-items-center gap-3">
+                    <button type="button" class="icon-btn" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+                    <button type="button" class="icon-btn" id="notificationToggle" aria-label="Show notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <div class="profile-menu-wrapper">
+                            <button type="button" class="profile-btn" id="profileToggle">
+                                <span class="profile-avatar">@User.Identity?.Name?.Substring(0,1).ToUpper()</span>
+                                <span class="profile-name">@User.Identity?.Name</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="profile-dropdown" id="profileDropdown">
+                                <a asp-area="Identity" asp-page="/Account/Manage/Index"><i class="fas fa-user-cog"></i> Account Settings</a>
+                                <a asp-area="Identity" asp-page="/Account/Manage/Index" asp-route-section="PersonalData"><i class="fas fa-key"></i> Security</a>
+                                <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="logout-form">
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-light btn-sm" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                    }
+                </div>
+            </header>
+
+            <div class="notifications-panel" id="notificationsPanel">
+                <div class="notifications-card">
+                    <div class="notifications-header">
+                        <strong>Notifications</strong>
+                        <span class="text-muted">Recent system alerts</span>
+                    </div>
+                    <ul class="notifications-list">
+                        <li><span class="notification-icon bg-primary"><i class="fas fa-check-circle"></i></span><div><strong>System ready</strong><p class="small text-muted">Your dashboard is up to date.</p></div></li>
+                        <li><span class="notification-icon bg-warning"><i class="fas fa-exclamation-triangle"></i></span><div><strong>Low stock warning</strong><p class="small text-muted">3 products are below reorder level.</p></div></li>
+                        <li><span class="notification-icon bg-success"><i class="fas fa-sync-alt"></i></span><div><strong>Backup complete</strong><p class="small text-muted">Daily backup completed successfully.</p></div></li>
+                    </ul>
+                </div>
+            </div>
+
+            <main class="content-wrapper">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

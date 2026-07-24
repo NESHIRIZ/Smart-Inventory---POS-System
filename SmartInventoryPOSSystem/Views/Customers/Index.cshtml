@@ -1,0 +1,52 @@
+@model IEnumerable<SmartInventoryPOSSystem.Models.Customer>
+@{
+    ViewData["Title"] = "Customers";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Customers</h1>
+        <p class="text-muted">Manage customer profiles and contact details to support sales and loyalty tracking.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">Add Customer</a>
+</div>
+
+<div class="page-intro">
+    <h2>Customer records</h2>
+    <p>Keep customer information complete so you can connect sales with the right account, apply discounts correctly, and preserve purchase history.</p>
+    <ul>
+        <li>Capture full names, contact details, and delivery addresses for every customer.</li>
+        <li>Use accurate customer records to support returns, order tracking, and repeat sales.</li>
+        <li>Review customer information regularly to keep data clean and reliable.</li>
+    </ul>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.FullName</td>
+                <td>@customer.PhoneNumber</td>
+                <td>@customer.Email</td>
+                <td>@customer.Address</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <form asp-action="Delete" asp-route-id="@customer.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
